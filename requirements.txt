@@ -1,2 +1,2 @@
-pyjq == 2.4.0
-requests == 2.22.0
+pyjq >= 2.4.0
+requests >= 2.22.0
