@@ -1,5 +1,5 @@
 # Cloud-One-Conformity-Profile-Builder
-script to create conformity profiles based on compliance standards & frameworks available within the tool
+Python script to create conformity profiles based on compliance standards & frameworks available within Conformity
 
 ## Installation
 
@@ -14,8 +14,8 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-1. Set the `apiKey` and `apiRegion` environment variables for your conformity api key and region.
-2. Run the script to create the profiles within conformity and also generate local profile files. Alternatively edit the script and comment out either the Create Profiles via API or Create profiles locally sections.
+1. Optionally set the `apiKey` and `apiRegion` environment variables for your conformity api key and region. (Only required for `online` option).
+2. Run the script with one of the following arguments: `local` to generate profile files locally in the currently folder, or `online` to create the profiles directly within your Conformity account.
   ```
-  python3 cpb.py
+  python3 cpb.py local
   ```
