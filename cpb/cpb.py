@@ -54,7 +54,7 @@ def main():
     if arg not in acceptable_args:
         sys.exit('Error: Specified argument is not valid, please run again with either "online" or "local" argument')
 
-    if arg == 'online':
+    elif arg == 'online':
         try:  
             os.environ["apiKey"]
         except KeyError: 
