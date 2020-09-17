@@ -17,8 +17,8 @@ class CPB:
         api=os.environ.get('apiKey')
         for compliance in compliancesunique:
             for c in compliance:
-                disabledincluded=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false, "riskLevel": .attributes."risk-level"}}', json_data)
-                disabledmulti=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false}}', json_data)
+                disabledincluded=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false, "riskLevel": .attributes."risk-level", "provider": .attributes.provider}}', json_data)
+                disabledmulti=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false, "provider": .attributes.provider}}', json_data)
                 data=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"type": .type, "id": .id}', json_data)
                 datamulti=pyjq.all('.included[] | select ((.attributes.compliances| index("' + c + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"type": .type, "id": .id}', json_data)
                 buildjson = {"included": disabledincluded + disabledmulti, "data": {"type": "profiles", "attributes": {"name": c, "description": c},"relationships": { "ruleSettings": { "data": data + datamulti}}}}
