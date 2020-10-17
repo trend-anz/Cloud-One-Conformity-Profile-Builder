@@ -97,7 +97,7 @@ class CPB:
 
 
 def main():
-    acceptablecomplianceargs = ["online", "local"]
+    acceptable_args = ["online", "local"]
     args = sys.argv
     ccprofiles = CPB()
 
@@ -108,7 +108,7 @@ def main():
 
     arg = sys.argv[1].lower()
 
-    if arg not in acceptablecomplianceargs:
+    if arg not in acceptable_args:
         sys.exit(
             'Error: Specified argument is not valid, please run again with either "online" or "local" argument'
         )
