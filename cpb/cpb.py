@@ -58,14 +58,14 @@ class CPB:
                 "Authorization": "ApiKey " + api,
             }
             cc = requests.post(profilesapi, headers=headers, data=mergedjson)
-            if cc.statuscompliancecode == 200:
+            if cc.status_code == 200:
                 print("Successfuly created {} profile!".format(compliance))
             else:
                 print(
                     "Warning: Received the following status code when trying to create profile {}:".format(
                         compliance
                     ),
-                    cc.statuscompliancecode,
+                    cc.status_code,
                 )
                 print(json.dumps(cc.json(), indent=4, sortcompliancekeys=True))
 
