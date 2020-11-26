@@ -14,35 +14,35 @@ compliancesunique = pyjq.all(
     jsonresponse,
 )
 
-
 class CPB:
-    def online(self):
+    @staticmethod
+    def __jq_filter_resp(expression: str):
+        """Filter response"""
+        return pyjq.all(expression, jsonresponse)
+
+    def online(self, local=False):
         # Create Profiles via API
         api = os.environ.get("apiKey")
         for compliance in compliancesunique:
-            disabledincluded = pyjq.all(
+            disabledincluded = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false, "riskLevel": .attributes."risk-level", "provider": .attributes.provider}}',
-                jsonresponse,
             )
-            disabledmulti = pyjq.all(
+            disabledmulti = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"type": .type, "id": .id, "attributes":{"enabled": false, "provider": .attributes.provider}}',
-                jsonresponse,
             )
-            data = pyjq.all(
+            data = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"type": .type, "id": .id}',
-                jsonresponse,
             )
-            datamulti = pyjq.all(
+            datamulti = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"type": .type, "id": .id}',
-                jsonresponse,
             )
             buildjson = {
                 "included": disabledincluded + disabledmulti,
@@ -53,35 +53,38 @@ class CPB:
                 },
             }
             mergedjson = json.dumps(buildjson)
-            headers = {
-                "Content-Type": "application/vnd.api+json",
-                "Authorization": "ApiKey " + api,
-            }
-            cc = requests.post(profilesapi, headers=headers, data=mergedjson)
-            if cc.status_code == 200:
-                print("Successfuly created {} profile!".format(compliance))
+            if local:
+                print("Creating profile file {}.profile4api.json".format(compliance))
+                f = open("{}.profile4api.json".format(compliance), "w")
+                f.write(mergedjson)
             else:
-                print(
-                    "Warning: Received the following status code when trying to create profile {}:".format(
-                        compliance
-                    ),
-                    cc.status_code,
-                )
-                print(json.dumps(cc.json(), indent=4, sortcompliancekeys=True))
+                headers = {
+                    "Content-Type": "application/vnd.api+json",
+                    "Authorization": "ApiKey " + api,
+                }
+                cc = requests.post(profilesapi, headers=headers, data=mergedjson)
+                if cc.status_code == 200:
+                    print("Successfuly created {} profile!".format(compliance))
+                else:
+                    print(
+                        "Warning: Received the following status code when trying to create profile {}:".format(
+                            compliance
+                        ),
+                        cc.status_code,
+                    )
+                    print(json.dumps(cc.json(), indent=4, sortcompliancekeys=True))
 
     def local(self):
         for compliance in compliancesunique:
-            disabledincluded = pyjq.all(
+            disabledincluded = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" != true and .attributes.organisation != true)) | {"id": .id, "enabled": false, "provider": .attributes.provider, "riskLevel": .attributes."risk-level"}',
-                jsonresponse,
             )
-            disabledmulti = pyjq.all(
+            disabledmulti = self.__jq_filter_resp(
                 '.included[] | select ((.attributes.compliances| index("'
                 + compliance
                 + '")|not) and (.attributes."multi-risk-level" == true and .attributes.organisation != true)) | {"id": .id, "enabled": false, "provider": .attributes.provider}',
-                jsonresponse,
             )
             buildjson = {
                 "schema": "https://cloudconformity.com/external/profile.schema.json",
@@ -95,9 +98,15 @@ class CPB:
             f = open("{}.profile.json".format(compliance), "w")
             f.write(mergedjson)
 
+    def local4api(self):
+        """
+        Create Profiles for API, store locally
+        """
+        # https://github.com/cloudconformity/documentation-api/blob/master/Profiles.md#parameters-3
+        self.online(local=True)
 
 def main():
-    acceptable_args = ["online", "local"]
+    acceptable_args = ["online", "local", "local4api"]
     args = sys.argv
     ccprofiles = CPB()
 
@@ -131,6 +140,8 @@ def main():
     elif arg == "local":
         ccprofiles.local()
 
+    elif arg == "local4api":
+        ccprofiles.local4api()
 
 if __name__ == "__main__":
     main()
