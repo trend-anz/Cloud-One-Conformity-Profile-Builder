@@ -65,7 +65,7 @@ class CPB:
             description = compliance
             if provider_filter:
                 name += f" {provider_filter} only"
-                description += f"rules only for {provider_filter}"
+                description += f" rules only for {provider_filter}"
             buildjson = {
                 "included": disabledincluded + disabledmulti,
                 "data": {
