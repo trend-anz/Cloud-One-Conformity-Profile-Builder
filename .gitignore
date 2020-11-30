@@ -130,6 +130,7 @@ dmypy.json
 
 # Conformity Profile files
 *.profile.json
+*.profile4api.json
 
 # Docker helper per user
 env.sh
