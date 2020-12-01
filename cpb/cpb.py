@@ -74,6 +74,14 @@ class CPB:
                     "relationships": {"ruleSettings": {"data": data + datamulti}},
                 },
             }
+            # Sort lists to match downloaded file from API, to allow comparison
+            def extract_id(json_obj):
+                try:
+                    return json_obj["id"]
+                except KeyError:
+                    return 0
+            buildjson["data"]["relationships"]["ruleSettings"]["data"].sort(key=extract_id)
+            buildjson["included"].sort(key=extract_id)
             mergedjson = json.dumps(buildjson, indent=2, sort_keys=True)
             suffix = provider_filter if provider_filter is not None else ""
             if local:
